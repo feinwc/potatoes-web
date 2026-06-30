@@ -124,7 +124,7 @@ export default function Home() {
                   />
                   {/* 相似度標籤 */}
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-amber-900 text-xs font-black px-3 py-1.5 rounded-full shadow-sm">
-                    {Math.round(item.similarity * 100)}% 契合度
+                    {Math.round(item.similarity * 100)}% matched
                   </div>
                 </div>
 
