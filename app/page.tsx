@@ -1,11 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
-export default function Home() {
+// 💡 建立一個內層組件來安全地使用 useSearchParams
+function SearchContent() {
   const [keyword, setKeyword] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   // 💡 核心搜尋邏輯：獨立成一個可重複呼叫的函數
   const performSearch = async (searchWord: string) => {
@@ -27,16 +32,28 @@ export default function Home() {
     }
   };
 
+  // ✅ 新增：監聽網址 URL 參數變化（當使用者點擊上方橫幅的類別時）
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    if (urlSearch) {
+      setKeyword(urlSearch);       // 讓輸入框文字同步改變
+      performSearch(urlSearch);    // 自動觸發搜尋
+    }
+  }, [searchParams]);
+
   // 表單送出處理（手動輸入關鍵字後按 Enter 或按鈕）
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     performSearch(keyword);
+    // 同步更新網址，維持體驗一致性
+    router.push(`/?search=${encodeURIComponent(keyword)}`);
   };
 
-  // ✅ 關鍵修正：點擊快速分類方框，同步填入輸入框並「直接觸發搜尋」
+  // ✅ 點擊下方莫蘭迪色系方框，同步填入輸入框並「直接觸發搜尋」
   const handleQuickSearch = (style: string) => {
-    setKeyword(style);       // 讓輸入框文字同步改變
-    performSearch(style);    // 直接拿這個標籤去跑 AI 搜尋，免去第二次點擊！
+    setKeyword(style);       
+    performSearch(style);    
+    router.push(`/?search=${encodeURIComponent(style)}`);
   };
 
   return (
@@ -47,7 +64,7 @@ export default function Home() {
           ──────────────────────────────────────────────────────────── */}
       <div className="pt-20 pb-12 px-6 flex flex-col items-center text-center">
         
-      {/* Logo 圖片區域 */}
+        {/* Logo 圖片區域 */}
         <div className="mb-6 select-none">
           <img 
             src="https://atqmngtzukfzosnsenyy.supabase.co/storage/v1/object/public/product-images/logo.jpeg" 
@@ -152,22 +169,3 @@ export default function Home() {
                   <div className="pt-6 border-t border-slate-100 flex justify-between items-center">
                     <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">MOQ: 100+</span>
                     <button className="text-sm font-bold text-amber-700 hover:text-amber-950 group-hover:translate-x-1 transition-transform">
-                      VIEW DETAILS →
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          !loading && results.length === 0 && keyword !== '' && (
-            <div className="text-center text-slate-400 py-20 border-2 border-dashed border-slate-200 rounded-3xl max-w-2xl mx-auto">
-              尚未找到完全契合的包裝，試試調整關鍵字看看？
-            </div>
-          )
-        )}
-      </div>
-    </main>
-  );
-}
-// test deploy
