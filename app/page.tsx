@@ -67,7 +67,7 @@ export default function Home() {
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="例如：北歐極簡風、文青手作感..."
+              placeholder="Scadi Style, backery, food bag..."
               className="flex-1 px-6 py-4 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-md focus:outline-none focus:ring-1 focus:ring-amber-800 text-base transition-all"
             />
             <button
@@ -75,7 +75,7 @@ export default function Home() {
               disabled={loading}
               className="px-8 py-4 bg-amber-800 hover:bg-amber-900 text-white font-medium rounded-2xl shadow-sm transition-all disabled:bg-amber-600 transform active:scale-98"
             >
-              {loading ? '分析中...' : '探索風格'}
+              {loading ? 'Loading...' : 'Search'}
             </button>
           </form>
         </div>
