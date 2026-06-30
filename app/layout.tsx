@@ -16,10 +16,10 @@ export default function RootLayout({
     <html lang="zh-TW">
       <body className="antialiased">
         {/* --- 新增的咖啡色橫幅區塊 --- */}
-        <header className="w-full bg-[#856A5D] py-4 flex justify-center items-center shadow-md">
+        <header className="w-full bg-[#856A5D] py-2 flex justify-center items-center shadow-md">
           <h1 
             style={{ fontFamily: '"Apple Braille", sans-serif' }} 
-            className="text-white text-3xl font-medium tracking-wider"
+            className="text-white text-2xl font-medium tracking-wider"
           >
             Potatoes
           </h1>
