@@ -86,7 +86,7 @@ export default function Home() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl">
           {[
             { title: 'Coffee', tag: 'Coffee', bg: '#D1C7BD' }, 
-            { title: 'Bag', tag: 'Bag', bg: '#BFA89E' }, 
+            { title: 'Food Bag', tag: 'Food Bag', bg: '#BFA89E' }, 
             { title: 'Bakery', tag: 'Bakery', bg: '#A38A7E' }, 
             { title: 'Festive', tag: 'Festive', bg: '#856A5D' }, 
           ].map((cat) => (
