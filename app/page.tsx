@@ -47,18 +47,18 @@ export default function Home() {
           ──────────────────────────────────────────────────────────── */}
       <div className="pt-20 pb-12 px-6 flex flex-col items-center text-center">
         
-        {/* Logo 圖片區域 */}
+      {/* Logo 圖片區域 */}
         <div className="mb-6 select-none">
           <img 
             src="https://atqmngtzukfzosnsenyy.supabase.co/storage/v1/object/public/product-images/logo.jpeg" 
             alt="Potatoes Packaging Logo" 
-            className="h-48 w-auto object-contain"
+            className="hidden h-48 w-auto object-contain"
           />
         </div>
 
-        <p className="text-slate-400 text-xs mb-10 tracking-widest">
+        <p className="hidden text-slate-400 text-xs mb-10 tracking-widest">
           AI-POWERED PACKAGING SEARCH ENGINE
-        </p>
+        </p> 
 
         {/* 搜尋框 */}
         <div className="w-full max-w-2xl mb-14">
