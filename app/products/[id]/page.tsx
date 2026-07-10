@@ -28,17 +28,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     
     const fetchProduct = async () => {
       try {
-        // 改用 GET 請求，並帶上商品 ID
+        setLoading(true); // 確保每次切換都重新載入
         const response = await fetch(`/api/products?id=${id}`);
         const resData = await response.json();
         
+        // 💡 修正判斷條件：確保後端回傳 success 且有 data
         if (resData.success && resData.data) {
           setProduct(resData.data);
         } else {
-          console.error("找不到該產品資料");
+          console.error("API 回傳失敗或資料為空:", resData);
+          setProduct(null); // 明確設為 null 觸發找不到商品的 UI
         }
       } catch (error) {
-        console.error("載入產品失敗", error);
+        console.error("連線 API 發生錯誤:", error);
+        setProduct(null);
       } finally {
         setLoading(false);
       }
