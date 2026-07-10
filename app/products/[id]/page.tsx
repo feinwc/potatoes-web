@@ -1,56 +1,41 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, use } from 'react';
+import { useRouter } from 'next/navigation';
 
-// 隨機價格計算函數 (根據數量乘上隨機單價，並無條件進位)
+// 隨機價格計算函數 (台幣計價)
 const calculatePrice = (quantity: number, seedId: string) => {
-  // 利用產品 id 的字元長度做一個簡易的固定隨機單價 (例如 5 ~ 15 元之間)
   const basePrice = 5 + (seedId.length % 10); 
-  // 數量越多，給點微幅折扣
   let discount = 1;
   if (quantity >= 100) discount = 0.9;
   if (quantity >= 500) discount = 0.8;
-  
   return Math.ceil(quantity * basePrice * discount);
 };
 
-export default function ProductDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const id = params?.id as string;
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
 
+  const router = useRouter();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState<number>(10); // 預設數量為 10
+  const [quantity, setQuantity] = useState<number>(10);
   const [searchKeyword, setSearchKeyword] = useState('');
 
-  // 1. 模擬或從 API 撈取該 ID 的單一產品資料
+  // 💡 修正：呼叫剛剛建立的精準撈取 API
   useEffect(() => {
     if (!id) return;
     
     const fetchProduct = async () => {
       try {
-        // 這裡呼叫你的 API，傳入 id 取得單一商品資料
-        const response = await fetch('/api/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ keyword: id }), // 如果你 API 支援以 id 搜尋
-        });
+        // 改用 GET 請求，並帶上商品 ID
+        const response = await fetch(`/api/products?id=${id}`);
         const resData = await response.json();
         
-        // 為了展示，如果 API 沒撈到，我們建立一個符合你之前上架的北歐貼紙資料作為 fallback
-        if (resData.data && resData.data.length > 0) {
-          setProduct(resData.data[0]);
+        if (resData.success && resData.data) {
+          setProduct(resData.data);
         } else {
-          setProduct({
-            id: id,
-            name: "北歐幾何 Thank You 圓形連續貼紙捲",
-            image_url: "https://atqmngtzukfzosnsenyy.supabase.co/storage/v1/object/public/product-images/logo.jpeg",
-            raw_description: "這款貼紙專為注重包裝質感與生活美學的您設計，融合了濃厚的北歐極簡主義（Scandinavian Minimalism），讓每一份感謝都顯得優雅而精緻。",
-            color_name: "北歐多色幾何",
-            color_code: "#BFA89E"
-          });
+          console.error("找不到該產品資料");
         }
       } catch (error) {
         console.error("載入產品失敗", error);
@@ -62,7 +47,6 @@ export default function ProductDetailPage() {
     fetchProduct();
   }, [id]);
 
-  // 處理保留的搜尋列送出事件 (跳回首頁搜尋)
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchKeyword.trim()) {
@@ -71,17 +55,13 @@ export default function ProductDetailPage() {
   };
 
   if (loading) return <div className="text-center py-20 text-slate-400">Loading Product...</div>;
-  if (!product) return <div className="text-center py-20 text-slate-400">找不到該產品</div>;
+  if (!product) return <div className="text-center py-20 text-slate-400">找不到該產品，或商品 ID 不存在</div>;
 
-  // 計算目前總價
   const totalPrice = calculatePrice(quantity, product.id || '1');
 
   return (
     <main className="min-h-screen bg-white text-slate-800">
-      
-      {/* ────────────────────────────────────────────────────────────
-          1. 保留搜尋列 (與首頁風格一致)
-          ──────────────────────────────────────────────────────────── */}
+      {/* 1. 保留搜尋列 */}
       <div className="pt-10 pb-8 px-6 flex flex-col items-center">
         <div className="w-full max-w-2xl">
           <form onSubmit={handleSearchSubmit} className="flex gap-3">
@@ -92,19 +72,14 @@ export default function ProductDetailPage() {
               placeholder="搜尋其他包裝風格..."
               className="flex-1 px-6 py-3 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-md focus:outline-none focus:ring-1 focus:ring-amber-800 text-base transition-all"
             />
-            <button
-              type="submit"
-              className="px-8 py-3 bg-amber-800 hover:bg-amber-900 text-white font-medium rounded-2xl shadow-sm transition-all"
-            >
+            <button type="submit" className="px-8 py-3 bg-amber-800 hover:bg-amber-900 text-white font-medium rounded-2xl shadow-sm transition-all">
               Search
             </button>
           </form>
         </div>
       </div>
 
-      {/* ────────────────────────────────────────────────────────────
-          2. 產品詳細佈局網格：左側 2/3 照片，右側 1/3 資訊與控制欄
-          ──────────────────────────────────────────────────────────── */}
+      {/* 2. 產品詳細佈局網格：左側 2/3 照片，右側 1/3 資訊 */}
       <div className="max-w-7xl mx-auto px-6 pb-24 grid grid-cols-1 lg:grid-cols-3 gap-12 pt-6">
         
         {/* 左側 2/3：照片區域 */}
@@ -124,7 +99,6 @@ export default function ProductDetailPage() {
         {/* 右側 1/3：商品資訊、數量、計價與購買按鈕 */}
         <div className="flex flex-col justify-between h-full space-y-8 bg-slate-50/50 p-8 rounded-3xl border border-slate-100">
           <div>
-            {/* 名稱和敘述在最上方 */}
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4 leading-tight">
               {product.name}
             </h2>
@@ -180,17 +154,17 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* 下方的兩個主動作按鈕 */}
+          {/* 下方購買按鈕 */}
           <div className="grid grid-cols-2 gap-4 pt-4">
             <button 
-              onClick={() => alert(`已將 ${quantity} 個商品加入購物車`)}
-              className="py-4 bg-white hover:bg-slate-100 text-amber-950 font-bold rounded-2xl border-2 border-slate-300 transition-all active:scale-98 text-center"
+              onClick={() => alert(`已將 ${quantity} 個 ${product.name} 加入購物車`)}
+              className="py-4 bg-white hover:bg-slate-100 text-amber-950 font-bold rounded-2xl border-2 border-slate-300 transition-all text-center"
             >
               放入購物車
             </button>
             <button 
               onClick={() => alert(`立即結帳：總金額 NT$ ${totalPrice}`)}
-              className="py-4 bg-amber-800 hover:bg-amber-900 text-white font-bold rounded-2xl shadow-md transition-all active:scale-98 text-center"
+              className="py-4 bg-amber-800 hover:bg-amber-900 text-white font-bold rounded-2xl shadow-md transition-all text-center"
             >
               立即結帳
             </button>
