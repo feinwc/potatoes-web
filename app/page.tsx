@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link'; // ✅ 1. 引入 Link 元件
 
 function SearchContent() {
   const [keyword, setKeyword] = useState('');
@@ -131,9 +132,14 @@ function SearchContent() {
                   </div>
                   <div className="pt-6 border-t border-slate-100 flex justify-between items-center">
                     <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">MOQ: 100+</span>
-                    <button className="text-sm font-bold text-amber-700 hover:text-amber-950 group-hover:translate-x-1 transition-transform">
+                    
+                    {/* ✅ 2. 修正這裡：將 button 換成 Link，連結到新頁面路徑 /products/[id] */}
+                    <Link 
+                      href={`/products/${item.id}`} 
+                      className="text-sm font-bold text-amber-700 hover:text-amber-950 group-hover:translate-x-1 transition-transform cursor-pointer"
+                    >
                       VIEW DETAILS →
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
